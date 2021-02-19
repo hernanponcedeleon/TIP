@@ -16,8 +16,10 @@ object SignLattice extends FlatLattice[SignElement.Value] with LatticeWithOps {
 
   private val signValues: Map[Element, Int] = Map(Bot -> 0, FlatEl(Zero) -> 1, FlatEl(Neg) -> 2, FlatEl(Pos) -> 3, Top -> 4)
 
-  private def lookup(op: List[List[Element]], x: Element, y: Element): Element =
+  private def lookup(op: List[List[Element]], x: Element, y: Element): Element = {
+    assert(isMonotone(op));
     op(signValues(x))(signValues(y))
+  }
 
   private val absPlus: List[List[Element]] =
     List(
@@ -92,4 +94,10 @@ object SignLattice extends FlatLattice[SignElement.Value] with LatticeWithOps {
   def eqq(a: Element, b: Element): Element = lookup(absEq, a, b)
 
   def gt(a: Element, b: Element): Element = lookup(absGt, a, b)
+
+  private def isMonotone(op: List[List[Element]]): Boolean = {
+    val m1 = signValues.flatMap(x => signValues.map(y => (x,y)))
+    val m2 = m1.flatMap(x => signValues.map(y => (x._1,x._2,y))).toList
+    m2.forall(m => !leq(m._1._1, m._2._1) || leq(op(m._1._2)(m._3._2), op(m._2._2)(m._3._2)))
+  }
 }
