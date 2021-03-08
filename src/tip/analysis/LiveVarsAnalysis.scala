@@ -28,7 +28,7 @@ abstract class LiveVarsAnalysis(cfg: IntraproceduralProgramCfg)(implicit declDat
           case cond: AExpr => s ++ (n.appearingIds)
           case as: AAssignStmt =>
             as.left match {
-              case id: AIdentifier => s - (id: ADeclaration) ++ (as.right: AstOp).appearingIds
+              case id: AIdentifier => s - (id: ADeclaration) ++ as.right.appearingIds
               case _ => s
             }
           case varr: AVarStmt => s -- varr.appearingIds
